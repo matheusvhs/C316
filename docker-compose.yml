@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: c316-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-c316}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-c316}
+      POSTGRES_DB: ${POSTGRES_DB:-c316}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-c316} -d ${POSTGRES_DB:-c316}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - c316
+
+  backend:
+    build:
+      context: ./backend
+    container_name: c316-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-c316}:${POSTGRES_PASSWORD:-c316}@db:5432/${POSTGRES_DB:-c316}
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    # Só sobe depois que o Postgres responder ao pg_isready.
+    depends_on:
+      db:
+        condition: service_healthy
+    # Código montado do host: alterações recarregam sem rebuild.
+    volumes:
+      - ./backend/src:/app/src
+    command: uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - c316
+
+volumes:
+  postgres_data:
+
+networks:
+  c316:
+    driver: bridge
