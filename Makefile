@@ -14,8 +14,12 @@ API_SVC := backend
 DB_SVC  := db
 SVC     ?=
 
+TESTS       := tests
+PYTEST_ARGS ?=
+K           ?=
+
 .DEFAULT_GOAL := help
-.PHONY: help install run test lint format check clean \
+.PHONY: help install run test test-v test-k lint format check clean \
         up down logs ps build shell db-shell
 
 help: ## Lista os comandos disponíveis
@@ -29,7 +33,14 @@ run: ## Sobe a API em modo de desenvolvimento (reload automático)
 	$(RUN) uvicorn $(APP) --reload --host $(HOST) --port $(PORT)
 
 test: ## Executa a suíte de testes
-	$(RUN) pytest
+	$(RUN) pytest $(PYTEST_ARGS)
+
+test-v: ## Executa os testes mostrando cada caso individualmente
+	$(RUN) pytest -v $(PYTEST_ARGS)
+
+test-k: ## Executa só os testes cujo nome casa com K (ex.: make test-k K=404)
+	@test -n "$(K)" || { echo "informe K, ex.: make test-k K=404"; exit 1; }
+	$(RUN) pytest -v -k "$(K)" $(PYTEST_ARGS)
 
 lint: ## Verifica o código com o Ruff
 	$(RUN) ruff check .

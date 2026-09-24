@@ -1,0 +1,42 @@
+name: CI Backend
+
+on:
+  push:
+    paths:
+      - "backend/**"
+      - ".github/workflows/ci-backend.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/ci-backend.yml"
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Testes
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v7
+
+      # O Poetry precisa existir antes do setup-python para o cache funcionar.
+      - name: Instalar Poetry
+        run: pipx install poetry
+
+      - name: Configurar Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+          cache: poetry
+          cache-dependency-path: backend/poetry.lock
+
+      - name: Instalar dependências
+        run: poetry install
+
+      - name: Rodar testes
+        run: poetry run pytest -v
