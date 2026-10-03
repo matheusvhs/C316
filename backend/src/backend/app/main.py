@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 
-app = FastAPI()
+from backend.app.routers import home, tarefas
 
-@app.get("/")
-def home():
-    return {"message": "Hello, World!"}
+app = FastAPI(title="C316 API")
+
+app.include_router(home.router)
+app.include_router(tarefas.router)
