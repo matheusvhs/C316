@@ -11,15 +11,14 @@ on:
       - ".github/workflows/ci-backend.yml"
   workflow_dispatch:
 
+defaults:
+  run:
+    working-directory: backend
+
 jobs:
-  test:
-    name: Testes
+  lint:
+    name: Lint (Ruff)
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: backend
-
     steps:
       - name: Checkout do código
         uses: actions/checkout@v7
@@ -38,5 +37,38 @@ jobs:
       - name: Instalar dependências
         run: poetry install
 
-      - name: Rodar testes
-        run: poetry run pytest -v
+      - name: Verificar lint
+        run: poetry run ruff check .
+
+      - name: Verificar formatação
+        run: poetry run ruff format --check .
+
+  # Uma execução por suíte. O tests/conftest.py faz a coleta falhar se algum
+  # teste estiver fora de tests/unit/ ou tests/integration/, então as duas
+  # juntas cobrem a suíte inteira.
+  test:
+    name: Testes (${{ matrix.suite }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [unit, integration]
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v7
+
+      - name: Instalar Poetry
+        run: pipx install poetry
+
+      - name: Configurar Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+          cache: poetry
+          cache-dependency-path: backend/poetry.lock
+
+      - name: Instalar dependências
+        run: poetry install
+
+      - name: Rodar testes (${{ matrix.suite }})
+        run: poetry run pytest -v -m ${{ matrix.suite }}

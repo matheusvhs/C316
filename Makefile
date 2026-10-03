@@ -19,12 +19,12 @@ PYTEST_ARGS ?=
 K           ?=
 
 .DEFAULT_GOAL := help
-.PHONY: help install run test test-v test-k lint format check clean \
+.PHONY: help install run test test-unit test-integration test-v test-k lint format check clean \
         up down logs ps build shell db-shell
 
 help: ## Lista os comandos disponíveis
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
-		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
+		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
 
 install: ## Instala as dependências (incluindo as de desenvolvimento)
 	$(POETRY) install
@@ -34,6 +34,12 @@ run: ## Sobe a API em modo de desenvolvimento (reload automático)
 
 test: ## Executa a suíte de testes
 	$(RUN) pytest $(PYTEST_ARGS)
+
+test-unit: ## Executa só os testes unitários (tests/unit/)
+	$(RUN) pytest -m unit $(PYTEST_ARGS)
+
+test-integration: ## Executa só os testes de integração via TestClient (tests/integration/)
+	$(RUN) pytest -m integration $(PYTEST_ARGS)
 
 test-v: ## Executa os testes mostrando cada caso individualmente
 	$(RUN) pytest -v $(PYTEST_ARGS)
