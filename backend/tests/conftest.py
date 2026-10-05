@@ -1,11 +1,23 @@
+from pathlib import Path
+
 import pytest
-from fastapi.testclient import TestClient
 
-from backend.app.main import app
+TESTS_DIR = Path(__file__).parent
+SUITES = ("unit", "integration")
 
 
-@pytest.fixture
-def client() -> TestClient:
-    """Cliente HTTP de teste, reaproveitado por todos os testes da API."""
-    with TestClient(app) as test_client:
-        yield test_client
+def pytest_collection_modifyitems(config, items):
+    """Marca cada teste com a suíte da pasta onde ele está.
+
+    Assim `pytest -m unit` e `pytest -m integration` funcionam sem marcar
+    teste por teste. Um teste fora de `unit/` ou `integration/` ficaria de
+    fora das duas execuções do CI, então a coleta falha nesse caso.
+    """
+    for item in items:
+        suite = item.path.relative_to(TESTS_DIR).parts[0]
+        if suite not in SUITES:
+            raise pytest.UsageError(
+                f"{item.nodeid}: todo teste deve ficar em tests/unit/ ou "
+                "tests/integration/"
+            )
+        item.add_marker(getattr(pytest.mark, suite))

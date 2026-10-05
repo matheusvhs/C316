@@ -22,6 +22,8 @@ make down
 
 ```bash
 make test        # suíte completa
+make test-unit   # só os unitários
+make test-integration  # só os de integração (TestClient)
 make test-v      # detalhando cada caso
 make test-k K=404  # filtrando por nome
 ```
@@ -29,7 +31,8 @@ make test-k K=404  # filtrando por nome
 Os detalhes de como os testes são organizados estão em
 [`backend/README.md`](backend/README.md#executando-os-testes).
 
-O mesmo conjunto roda no CI a cada `push` e `pull_request`
+O CI roda lint, testes unitários e testes de integração em jobs separados a
+cada `push` e `pull_request`
 ([`.github/workflows/ci-backend.yml`](.github/workflows/ci-backend.yml)).
 
 ## Documentação
