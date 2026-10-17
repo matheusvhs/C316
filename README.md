@@ -14,9 +14,15 @@ make help      # lista todos os comandos
 Para subir tudo em containers (API + PostgreSQL):
 
 ```bash
-make up
+make up          # aplica as migrations e sobe a API
+make restart     # reinicia a API; as tarefas continuam no banco
+make db-current  # revisão do Alembic aplicada
 make down
 ```
+
+As tarefas ficam no PostgreSQL e a tabela é criada pelas migrations do
+Alembic. Detalhes em
+[`backend/README.md`](backend/README.md#persistência).
 
 ## Testes
 
@@ -37,4 +43,5 @@ cada `push` e `pull_request`
 
 ## Documentação
 
-- [`backend/README.md`](backend/README.md) — estrutura do backend e testes
+- [`backend/README.md`](backend/README.md) — estrutura do backend,
+  persistência, migrations e testes
