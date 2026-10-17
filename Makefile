@@ -20,7 +20,8 @@ K           ?=
 
 .DEFAULT_GOAL := help
 .PHONY: help install run test test-unit test-integration test-v test-k lint format check clean \
-        up down logs ps build shell db-shell
+        up down restart logs ps build shell db-shell \
+        migrate migration db-upgrade db-downgrade db-current db-history
 
 help: ## Lista os comandos disponíveis
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -68,6 +69,9 @@ up: ## Sobe a stack (API + Postgres) em background
 down: ## Derruba a stack (o volume do banco é preservado)
 	$(COMPOSE) down
 
+restart: ## Reinicia só a API (os dados continuam no volume do Postgres)
+	$(COMPOSE) restart $(API_SVC)
+
 logs: ## Acompanha os logs; use SVC=backend para filtrar um serviço
 	$(COMPOSE) logs -f --tail=100 $(SVC)
 
@@ -82,3 +86,29 @@ shell: ## Abre um shell dentro do container do backend
 
 db-shell: ## Abre o psql no container do banco
 	$(COMPOSE) exec $(DB_SVC) sh -c 'psql -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"'
+
+# --- Migrations (Alembic) ---------------------------------------------------
+# db-*: rodam dentro do container, contra o Postgres do Compose.
+# migrate/migration: rodam no host, usando DATABASE_URL (padrão: localhost).
+
+ALEMBIC := $(POETRY) run alembic -c alembic.ini
+MSG     ?=
+
+db-upgrade: ## Aplica as migrations pendentes no banco do Compose
+	$(COMPOSE) run --rm $(API_SVC) alembic upgrade head
+
+db-downgrade: ## Desfaz a última migration no banco do Compose
+	$(COMPOSE) run --rm $(API_SVC) alembic downgrade -1
+
+db-current: ## Mostra a revisão aplicada no banco do Compose
+	$(COMPOSE) run --rm $(API_SVC) alembic current
+
+db-history: ## Lista as migrations existentes
+	$(ALEMBIC) history
+
+migrate: ## Aplica as migrations no banco de DATABASE_URL (fora do Compose)
+	$(ALEMBIC) upgrade head
+
+migration: ## Gera uma migration a partir dos modelos (ex.: make migration MSG="adiciona prazo")
+	@test -n "$(MSG)" || { echo 'informe MSG, ex.: make migration MSG="adiciona prazo"'; exit 1; }
+	$(ALEMBIC) revision --autogenerate -m "$(MSG)"

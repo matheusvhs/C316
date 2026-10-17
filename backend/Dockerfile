@@ -17,6 +17,10 @@ RUN poetry install --no-root
 COPY src ./src
 RUN poetry install --only-root
 
+# Migrations: o container aplica antes de subir a API (veja docker-compose.yml).
+COPY alembic.ini ./
+COPY migrations ./migrations
+
 EXPOSE 8000
 
 CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
