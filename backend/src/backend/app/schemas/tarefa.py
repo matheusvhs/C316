@@ -47,6 +47,9 @@ class TarefaPatch(BaseModel):
 class Tarefa(TarefaBase):
     """Representação devolvida pela API."""
 
+    # Permite montar a resposta direto do modelo do SQLAlchemy.
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     criada_em: datetime
     atualizada_em: datetime

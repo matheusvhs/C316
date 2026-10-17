@@ -10,8 +10,8 @@ from backend.app.schemas.tarefa import (
 
 
 @pytest.fixture
-def repo() -> TarefaRepository:
-    return TarefaRepository()
+def repo(session) -> TarefaRepository:
+    return TarefaRepository(session)
 
 
 def criar(repo: TarefaRepository, titulo: str = "t", **campos):

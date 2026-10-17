@@ -1,6 +1,12 @@
 from datetime import UTC, datetime
-from itertools import count
+from typing import Annotated
 
+from fastapi import Depends
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from backend.app.database import get_db
+from backend.app.models.tarefa import TarefaModel
 from backend.app.schemas.tarefa import (
     Prioridade,
     Tarefa,
@@ -11,11 +17,10 @@ from backend.app.schemas.tarefa import (
 
 
 class TarefaRepository:
-    """Armazena as tarefas em memória."""
+    """Guarda as tarefas no banco, usando a sessão da requisição."""
 
-    def __init__(self) -> None:
-        self._tarefas: dict[int, Tarefa] = {}
-        self._ids = count(1)
+    def __init__(self, session: Session) -> None:
+        self._session = session
 
     def listar(
         self,
@@ -24,27 +29,24 @@ class TarefaRepository:
         offset: int = 0,
         limit: int = 10,
     ) -> list[Tarefa]:
-        tarefas = [
-            t
-            for t in self._tarefas.values()
-            if (concluida is None or t.concluida == concluida)
-            and (prioridade is None or t.prioridade == prioridade)
-        ]
-        return tarefas[offset : offset + limit]
+        consulta = select(TarefaModel).order_by(TarefaModel.id)
+        if concluida is not None:
+            consulta = consulta.where(TarefaModel.concluida == concluida)
+        if prioridade is not None:
+            consulta = consulta.where(TarefaModel.prioridade == prioridade)
+        modelos = self._session.scalars(consulta.offset(offset).limit(limit))
+        return [Tarefa.model_validate(m) for m in modelos]
 
     def obter(self, tarefa_id: int) -> Tarefa | None:
-        return self._tarefas.get(tarefa_id)
+        modelo = self._session.get(TarefaModel, tarefa_id)
+        return None if modelo is None else Tarefa.model_validate(modelo)
 
     def criar(self, dados: TarefaCreate) -> Tarefa:
         agora = datetime.now(UTC)
-        tarefa = Tarefa(
-            id=next(self._ids),
-            criada_em=agora,
-            atualizada_em=agora,
-            **dados.model_dump(),
-        )
-        self._tarefas[tarefa.id] = tarefa
-        return tarefa
+        modelo = TarefaModel(**dados.model_dump(), criada_em=agora, atualizada_em=agora)
+        self._session.add(modelo)
+        self._session.commit()
+        return Tarefa.model_validate(modelo)
 
     def substituir(self, tarefa_id: int, dados: TarefaUpdate) -> Tarefa | None:
         return self._atualizar(tarefa_id, dados.model_dump())
@@ -53,20 +55,25 @@ class TarefaRepository:
         return self._atualizar(tarefa_id, dados.model_dump(exclude_unset=True))
 
     def remover(self, tarefa_id: int) -> bool:
-        return self._tarefas.pop(tarefa_id, None) is not None
+        modelo = self._session.get(TarefaModel, tarefa_id)
+        if modelo is None:
+            return False
+        self._session.delete(modelo)
+        self._session.commit()
+        return True
 
     def _atualizar(self, tarefa_id: int, campos: dict) -> Tarefa | None:
-        atual = self._tarefas.get(tarefa_id)
-        if atual is None:
+        modelo = self._session.get(TarefaModel, tarefa_id)
+        if modelo is None:
             return None
-        tarefa = atual.model_copy(update={**campos, "atualizada_em": datetime.now(UTC)})
-        self._tarefas[tarefa_id] = tarefa
-        return tarefa
+        for campo, valor in {**campos, "atualizada_em": datetime.now(UTC)}.items():
+            setattr(modelo, campo, valor)
+        self._session.commit()
+        return Tarefa.model_validate(modelo)
 
 
-_repository = TarefaRepository()
-
-
-def get_tarefa_repository() -> TarefaRepository:
-    """Dependência do FastAPI; os testes a sobrescrevem com um repositório novo."""
-    return _repository
+def get_tarefa_repository(
+    session: Annotated[Session, Depends(get_db)],
+) -> TarefaRepository:
+    """Dependência do FastAPI: um repositório ligado à sessão da requisição."""
+    return TarefaRepository(session)
