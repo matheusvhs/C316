@@ -26,17 +26,22 @@ services:
     container_name: c316-backend
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-c316}:${POSTGRES_PASSWORD:-c316}@db:5432/${POSTGRES_DB:-c316}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-c316}:${POSTGRES_PASSWORD:-c316}@db:5432/${POSTGRES_DB:-c316}
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     # Só sobe depois que o Postgres responder ao pg_isready.
     depends_on:
       db:
         condition: service_healthy
-    # Código montado do host: alterações recarregam sem rebuild.
+    # Código e migrations montados do host: alterações recarregam sem rebuild.
     volumes:
       - ./backend/src:/app/src
-    command: uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
+      - ./backend/migrations:/app/migrations
+    # Aplica as migrations pendentes e só então sobe a API. Se a migration
+    # falhar, a API não sobe.
+    command: >-
+      sh -c "alembic upgrade head &&
+      exec uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload"
     networks:
       - c316
 
