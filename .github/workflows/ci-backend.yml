@@ -46,6 +46,10 @@ jobs:
   # Uma execução por suíte. O tests/conftest.py faz a coleta falhar se algum
   # teste estiver fora de tests/unit/ ou tests/integration/, então as duas
   # juntas cobrem a suíte inteira.
+  #
+  # Localmente os testes usam SQLite; aqui rodam contra um Postgres de
+  # verdade, na mesma versão do docker-compose.yml. Cada teste aplica as
+  # migrations e as desfaz no fim.
   test:
     name: Testes (${{ matrix.suite }})
     runs-on: ubuntu-latest
@@ -53,6 +57,22 @@ jobs:
       fail-fast: false
       matrix:
         suite: [unit, integration]
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: c316
+          POSTGRES_PASSWORD: c316
+          POSTGRES_DB: c316_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U c316 -d c316_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgresql+psycopg://c316:c316@localhost:5432/c316_test
     steps:
       - name: Checkout do código
         uses: actions/checkout@v7
