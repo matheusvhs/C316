@@ -1,0 +1,8 @@
+# dependências e artefatos
+node_modules/
+dist/
+coverage/
+
+# saída do Playwright
+test-results/
+playwright-report/

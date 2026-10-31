@@ -2,13 +2,16 @@ name: CI Backend
 
 on:
   push:
+    branches: [main]
     paths:
       - "backend/**"
       - ".github/workflows/ci-backend.yml"
+      - "Makefile"
   pull_request:
     paths:
       - "backend/**"
       - ".github/workflows/ci-backend.yml"
+      - "Makefile"
   workflow_dispatch:
 
 defaults:
