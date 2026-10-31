@@ -1,7 +1,8 @@
 # C316 - Makefile
 # Atalhos para as tarefas mais comuns do projeto.
 
-BACKEND := backend
+BACKEND  := backend
+FRONTEND := frontend
 POETRY  := poetry -C $(BACKEND)
 RUN     := $(POETRY) run
 
@@ -21,7 +22,9 @@ K           ?=
 .DEFAULT_GOAL := help
 .PHONY: help install run test test-unit test-integration test-v test-k lint format check clean \
         up down restart logs ps build shell db-shell \
-        migrate migration db-upgrade db-downgrade db-current db-history
+        migrate migration db-upgrade db-downgrade db-current db-history \
+        frontend-install frontend-dev frontend-lint frontend-format frontend-check \
+        frontend-test frontend-test-e2e frontend-build check-all
 
 help: ## Lista os comandos disponíveis
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -112,3 +115,31 @@ migrate: ## Aplica as migrations no banco de DATABASE_URL (fora do Compose)
 migration: ## Gera uma migration a partir dos modelos (ex.: make migration MSG="adiciona prazo")
 	@test -n "$(MSG)" || { echo 'informe MSG, ex.: make migration MSG="adiciona prazo"'; exit 1; }
 	$(ALEMBIC) revision --autogenerate -m "$(MSG)"
+
+# --- Frontend (React + Vite) -------------------------------------------------
+
+frontend-install: ## Instala as dependências do frontend pelo lockfile
+	npm ci --prefix $(FRONTEND)
+
+frontend-dev: ## Sobe o Vite em http://localhost:5173
+	npm run dev --prefix $(FRONTEND)
+
+frontend-lint: ## Verifica o lint do frontend com Biome
+	npm run lint --prefix $(FRONTEND)
+
+frontend-format: ## Formata o frontend com Biome
+	npm run format --prefix $(FRONTEND)
+
+frontend-check: ## Verifica lint, formatação e imports do frontend
+	npm run check --prefix $(FRONTEND)
+
+frontend-test: ## Executa o Vitest (unitários e de integração)
+	npm run test --prefix $(FRONTEND)
+
+frontend-test-e2e: ## Executa o Playwright (inicia o Vite automaticamente)
+	npm run test:e2e --prefix $(FRONTEND)
+
+frontend-build: ## Gera o build de produção do frontend
+	npm run build --prefix $(FRONTEND)
+
+check-all: lint test frontend-check frontend-test frontend-build frontend-test-e2e ## Valida backend e frontend
