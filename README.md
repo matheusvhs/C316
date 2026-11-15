@@ -12,10 +12,10 @@ make test      # roda os testes
 make help      # lista todos os comandos
 ```
 
-Para subir tudo em containers (API + PostgreSQL):
+Para subir tudo em containers (frontend + API + PostgreSQL):
 
 ```bash
-make up          # aplica as migrations e sobe a API
+make up          # aplica as migrations e sobe API e frontend
 make restart     # reinicia a API; as tarefas continuam no banco
 make db-current  # revisão do Alembic aplicada
 make down
@@ -51,13 +51,15 @@ make frontend-test     # Vitest (unitários e de integração)
 make frontend-test-e2e # Playwright (inicia o Vite sozinho)
 ```
 
-O frontend é uma aplicação independente que mantém os itens em memória —
-sem API nem persistência. Detalhes em
-[`docs/pratica-6.md`](docs/pratica-6.md). O CI dele roda em
-[`.github/workflows/ci-frontend.yml`](.github/workflows/ci-frontend.yml).
+O frontend chama a API de tarefas e persiste tudo no PostgreSQL — em dev o
+Vite faz proxy de `/tarefas` para a API em `:8000`; no Compose o Nginx faz o
+mesmo. Detalhes em [`docs/pratica-7.md`](docs/pratica-7.md). O CI dele roda
+em [`.github/workflows/ci-frontend.yml`](.github/workflows/ci-frontend.yml).
 
 ## Documentação
 
 - [`backend/README.md`](backend/README.md) — estrutura do backend,
   persistência, migrations e testes
 - [`docs/pratica-6.md`](docs/pratica-6.md) — frontend, testes e CI
+- [`docs/pratica-7.md`](docs/pratica-7.md) — integração frontend ↔ API,
+  CORS e container do frontend

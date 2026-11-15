@@ -1,7 +1,7 @@
 {
   "name": "c316-frontend",
   "version": "0.1.0",
-  "description": "Gerenciador de itens em memória — Prática 6 de C316",
+  "description": "Gerenciador de tarefas integrado à API — Prática 7 de C316",
   "private": true,
   "type": "module",
   "engines": {

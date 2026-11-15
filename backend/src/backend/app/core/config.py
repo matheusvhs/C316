@@ -5,3 +5,6 @@ import os
 DATABASE_URL = os.getenv(
     "DATABASE_URL", "postgresql+psycopg://c316:c316@localhost:5432/c316"
 )
+
+# Origem liberada no CORS: o endereço de onde o frontend chama a API.
+FRONTEND_ORIGIN = os.getenv("FRONTEND_ORIGIN", "http://localhost:5173")

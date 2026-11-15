@@ -66,7 +66,7 @@ clean: ## Remove caches e artefatos de build
 	find . -type d -name '__pycache__' -prune -exec rm -rf {} +
 	rm -rf $(BACKEND)/.pytest_cache $(BACKEND)/.ruff_cache $(BACKEND)/dist
 
-up: ## Sobe a stack (API + Postgres) em background
+up: ## Sobe a stack (frontend + API + Postgres) em background
 	$(COMPOSE) up -d --build
 
 down: ## Derruba a stack (o volume do banco é preservado)

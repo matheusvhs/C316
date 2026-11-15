@@ -43,3 +43,29 @@ def test_openapi_documenta_a_rota_home(client):
 
     assert "/" in schema["paths"]
     assert "get" in schema["paths"]["/"]
+
+
+def test_cors_responde_com_a_origem_do_frontend(client):
+    """O frontend (Vite em :5173) precisa ler as respostas da API."""
+    response = client.get("/", headers={"Origin": "http://localhost:5173"})
+
+    assert response.headers["access-control-allow-origin"] == (
+        "http://localhost:5173"
+    )
+
+
+def test_cors_responde_ao_preflight_das_tarefas(client):
+    """POST/PATCH/DELETE do navegador passam por um OPTIONS antes."""
+    response = client.options(
+        "/tarefas",
+        headers={
+            "Origin": "http://localhost:5173",
+            "Access-Control-Request-Method": "POST",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == (
+        "http://localhost:5173"
+    )
+    assert "POST" in response.headers["access-control-allow-methods"]
