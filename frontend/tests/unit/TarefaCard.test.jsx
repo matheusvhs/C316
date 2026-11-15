@@ -47,11 +47,7 @@ it("dispara onRemover com o id da tarefa", async () => {
   const onRemover = vi.fn();
   render(
     <ul>
-      <TarefaCard
-        tarefa={tarefa}
-        onAlternar={() => {}}
-        onRemover={onRemover}
-      />
+      <TarefaCard tarefa={tarefa} onAlternar={() => {}} onRemover={onRemover} />
     </ul>,
   );
   await user.click(

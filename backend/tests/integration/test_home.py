@@ -49,9 +49,7 @@ def test_cors_responde_com_a_origem_do_frontend(client):
     """O frontend (Vite em :5173) precisa ler as respostas da API."""
     response = client.get("/", headers={"Origin": "http://localhost:5173"})
 
-    assert response.headers["access-control-allow-origin"] == (
-        "http://localhost:5173"
-    )
+    assert response.headers["access-control-allow-origin"] == ("http://localhost:5173")
 
 
 def test_cors_responde_ao_preflight_das_tarefas(client):
@@ -65,7 +63,5 @@ def test_cors_responde_ao_preflight_das_tarefas(client):
     )
 
     assert response.status_code == 200
-    assert response.headers["access-control-allow-origin"] == (
-        "http://localhost:5173"
-    )
+    assert response.headers["access-control-allow-origin"] == ("http://localhost:5173")
     assert "POST" in response.headers["access-control-allow-methods"]

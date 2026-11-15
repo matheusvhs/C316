@@ -142,9 +142,7 @@ test("não envia o formulário inválido para a API", async ({ page }) => {
 test("não gera rolagem horizontal em telas estreitas", async ({ page }) => {
   await mockTarefasApi(page);
   await page.goto("/");
-  await page
-    .getByLabel(/Título/)
-    .fill(`Tarefa ${"comprida ".repeat(20)}`);
+  await page.getByLabel(/Título/).fill(`Tarefa ${"comprida ".repeat(20)}`);
   await page.getByRole("button", { name: "Adicionar tarefa" }).click();
   const semOverflow = await page.evaluate(
     () => document.documentElement.scrollWidth <= window.innerWidth,
