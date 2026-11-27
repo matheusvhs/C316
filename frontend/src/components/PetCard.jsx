@@ -4,7 +4,7 @@ import {
   rotuloEspecie,
 } from "../utils/formatacao.js";
 
-export default function PetCard({ pet }) {
+export default function PetCard({ pet, onEditar }) {
   return (
     <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
       <h2 className="text-lg font-semibold text-slate-800">{pet.nome}</h2>
@@ -16,6 +16,16 @@ export default function PetCard({ pet }) {
         <dt className="text-slate-500">Idade</dt>
         <dd>{formatarIdade(calcularIdade(pet.data_nascimento))}</dd>
       </dl>
+      <div className="mt-4 flex gap-2">
+        <button
+          type="button"
+          onClick={() => onEditar(pet)}
+          aria-label={`Editar ${pet.nome}`}
+          className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        >
+          Editar
+        </button>
+      </div>
     </article>
   );
 }

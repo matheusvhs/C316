@@ -53,3 +53,9 @@ export function formatarIdade({ anos, meses }) {
   if (meses > 0) partes.push(plural(meses, "mês", "meses"));
   return partes.length ? partes.join(" e ") : "Menos de 1 mês";
 }
+
+export function hojeIso(hoje = new Date()) {
+  const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+  const dia = String(hoje.getDate()).padStart(2, "0");
+  return `${hoje.getFullYear()}-${mes}-${dia}`;
+}
