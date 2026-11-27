@@ -177,4 +177,4 @@ O GitHub Actions roda os workflows `Backend` (Ruff e Pytest contra PostgreSQL) e
 
 ## Vídeo demonstrativo
 
-<!-- link do vídeo -->
+https://youtu.be/3LEApkEZngQ
