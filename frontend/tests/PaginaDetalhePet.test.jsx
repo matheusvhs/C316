@@ -128,9 +128,9 @@ describe("PaginaDetalhePet", () => {
     );
     const usuario = renderizar();
     await screen.findByRole("heading", { name: "Rex" });
-    const formulario = screen
-      .getByRole("heading", { name: "Registrar cuidado" })
-      .closest("section");
+    const formulario = screen.getByRole("region", {
+      name: "Registrar cuidado",
+    });
 
     await usuario.selectOptions(
       within(formulario).getByLabelText(/Tipo/),

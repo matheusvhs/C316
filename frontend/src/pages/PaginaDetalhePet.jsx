@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import { Link, useParams } from "react-router";
 import Aviso from "../components/Aviso.jsx";
 import ConfirmarExclusao from "../components/ConfirmarExclusao.jsx";
@@ -25,6 +25,7 @@ import {
 
 export default function PaginaDetalhePet() {
   const { id } = useParams();
+  const idTituloRegistro = useId();
   const [detalhes, setDetalhes] = useState(null);
   const [erroDetalhes, setErroDetalhes] = useState(null);
   const [tipo, setTipo] = useState("");
@@ -166,8 +167,14 @@ export default function PaginaDetalhePet() {
         }}
         onTentarNovamente={carregarCuidados}
       />
-      <section className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-slate-800">
+      <section
+        aria-labelledby={idTituloRegistro}
+        className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
+      >
+        <h3
+          id={idTituloRegistro}
+          className="text-lg font-semibold text-slate-800"
+        >
           Registrar cuidado
         </h3>
         <FormularioCuidado
