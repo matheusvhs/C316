@@ -11,7 +11,7 @@ AMANHA = (date.today() + timedelta(days=1)).isoformat()
 
 
 def campos_com_erro(erro: ValidationError) -> list[tuple]:
-    return [item["loc"] for item in erro.errors()]
+    return [falha["loc"] for falha in erro.errors()]
 
 
 def test_pet_valido_normaliza_textos():

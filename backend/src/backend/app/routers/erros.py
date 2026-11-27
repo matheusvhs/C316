@@ -90,10 +90,10 @@ def registrar_handlers(app: FastAPI) -> None:
     async def erro_de_validacao(
         _: Request, erro: RequestValidationError
     ) -> JSONResponse:
-        erros = [_traduzir(item) for item in erro.errors()]
+        erros = [_traduzir(falha) for falha in erro.errors()]
         detalhe = "; ".join(
-            f"{ROTULOS.get(item['campo'], item['campo'])}: {item['mensagem']}"
-            for item in erros
+            f"{ROTULOS.get(falha['campo'], falha['campo'])}: {falha['mensagem']}"
+            for falha in erros
         )
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
