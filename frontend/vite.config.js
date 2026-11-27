@@ -9,4 +9,10 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
   },
+  test: {
+    environment: "jsdom",
+    setupFiles: "./tests/setup.js",
+    include: ["tests/**/*.test.{js,jsx}"],
+    env: { VITE_API_URL: "http://api.teste" },
+  },
 });
