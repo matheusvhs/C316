@@ -1,0 +1,71 @@
+name: Testes completos
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - "scripts/**"
+      - "docker-compose.yml"
+      - "Makefile"
+      - ".env.example"
+      - ".github/workflows/testes.yml"
+  push:
+    branches: [projeto-final]
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - "scripts/**"
+      - "docker-compose.yml"
+      - "Makefile"
+      - ".env.example"
+      - ".github/workflows/testes.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  make-test:
+    name: make test (backend, frontend e E2E)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Instalar o Poetry
+        run: pipx install poetry==2.5.1
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+          cache: poetry
+          cache-dependency-path: backend/poetry.lock
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: make install
+        run: make install
+
+      - name: Dependências de sistema do Chromium
+        run: npm --prefix frontend exec -- playwright install-deps chromium
+
+      - name: make test
+        run: make test
+
+      - name: Logs do compose em caso de falha
+        if: failure()
+        run: docker compose logs --no-color
+
+      - name: Guardar o relatório do Playwright em caso de falha
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: relatorio-playwright
+          path: frontend/test-results/
+          retention-days: 7

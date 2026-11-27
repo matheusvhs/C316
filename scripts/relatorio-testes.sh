@@ -17,6 +17,7 @@ resumir() {
 }
 
 linhas=()
+resumo_md=()
 falhou=0
 for suite in "${SUITES[@]}"; do
   nome="${suite%%:*}"
@@ -33,6 +34,7 @@ for suite in "${SUITES[@]}"; do
   duracao=$(($(date +%s) - inicio))
   resumo=$(resumir "$log" "$alvo")
   linhas+=("$(printf '%b  %-20s %5ss   %s' "$status" "$nome" "$duracao" "${resumo:-sem resumo}")")
+  resumo_md+=("| $( [ "$status" = "${status#*OK}" ] && echo "❌ falhou" || echo "✅ ok" ) | $nome | ${duracao}s | ${resumo:-sem resumo} |")
 done
 
 printf '\n\033[1m=== Relatório dos testes ===\033[0m\n'
@@ -41,5 +43,14 @@ if [ "$falhou" -eq 0 ]; then
   printf '\n\033[32mTodas as suítes passaram.\033[0m\n'
 else
   printf '\n\033[31mPelo menos uma suíte falhou. Veja a saída acima.\033[0m\n'
+fi
+if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+  {
+    echo "## Relatório dos testes"
+    echo
+    echo "| Resultado | Suíte | Tempo | Testes |"
+    echo "|---|---|---|---|"
+    printf '%s\n' "${resumo_md[@]}"
+  } >>"$GITHUB_STEP_SUMMARY"
 fi
 exit "$falhou"
