@@ -94,6 +94,7 @@ Elas valem na API, e os erros aparecem na tela.
 │   ├── Dockerfile
 │   └── nginx.conf
 ├── .github/workflows/           # CI do backend e do frontend
+├── scripts/                     # relatório do make test
 ├── docker-compose.yml
 ├── Makefile
 └── .env.example
@@ -165,7 +166,7 @@ Outros comandos:
 | Comando | O que faz |
 |---|---|
 | `make install` | Instala as dependências do backend e do frontend e o Chromium do Playwright |
-| `make test` | Roda todos os testes: backend, frontend e E2E |
+| `make test` (ou `make tests`) | Roda todos os testes (backend, frontend e E2E) e mostra no fim um relatório com o resultado, a quantidade de testes e o tempo de cada suíte |
 | `make test-backend` | Pytest (SQLite temporário; no CI, PostgreSQL) |
 | `make test-frontend` | Vitest com Testing Library |
 | `make test-e2e` | Sobe a stack e roda o Playwright contra ela |

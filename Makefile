@@ -8,7 +8,7 @@ LOCAL_DATABASE_URL := postgresql+psycopg://$(POSTGRES_USER):$(POSTGRES_PASSWORD)
 .DEFAULT_GOAL := help
 
 .PHONY: help install up down logs migrate migration reset-db seed lint format \
-	test-backend test-frontend test-e2e test
+	test-backend test-frontend test-e2e test tests
 
 help: ## Mostra os comandos disponíveis
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## ' $(firstword $(MAKEFILE_LIST)) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -64,4 +64,7 @@ test-e2e: up ## Sobe a stack e roda os testes E2E (Playwright) contra ela
 	$(NPM) exec -- playwright install chromium
 	$(NPM) run test:e2e
 
-test: test-backend test-frontend test-e2e ## Roda todos os testes: backend, frontend e E2E
+test: ## Roda todos os testes (backend, frontend e E2E) e mostra um relatório no fim
+	@./scripts/relatorio-testes.sh
+
+tests: test ## Atalho para make test
