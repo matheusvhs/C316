@@ -41,7 +41,7 @@ def upgrade() -> None:
         sa.Column(
             "criado_em",
             sa.DateTime(timezone=True),
-            server_default=sa.text("now()"),
+            server_default=sa.text("CURRENT_TIMESTAMP"),
             nullable=False,
         ),
         sa.CheckConstraint("peso_kg > 0 AND peso_kg <= 150", name=op.f("ck_pets_peso")),

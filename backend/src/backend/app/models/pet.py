@@ -39,7 +39,7 @@ class Pet(Base):
     data_nascimento: Mapped[date]
     peso_kg: Mapped[Decimal] = mapped_column(Numeric(5, 2))
     criado_em: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
+        DateTime(timezone=True), server_default=func.current_timestamp()
     )
 
     cuidados: Mapped[list[Cuidado]] = relationship(back_populates="pet")
