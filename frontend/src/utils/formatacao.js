@@ -59,3 +59,22 @@ export function hojeIso(hoje = new Date()) {
   const dia = String(hoje.getDate()).padStart(2, "0");
   return `${hoje.getFullYear()}-${mes}-${dia}`;
 }
+
+export const TIPOS_CUIDADO = [
+  { valor: "vacina", rotulo: "Vacina" },
+  { valor: "vermifugo", rotulo: "Vermífugo" },
+  { valor: "antipulgas", rotulo: "Antipulgas" },
+  { valor: "banho", rotulo: "Banho" },
+  { valor: "consulta", rotulo: "Consulta" },
+  { valor: "outro", rotulo: "Outro" },
+];
+
+export function rotuloTipo(valor) {
+  return TIPOS_CUIDADO.find((tipo) => tipo.valor === valor)?.rotulo ?? valor;
+}
+
+export function textoPrazo(dias) {
+  if (dias === 0) return "vence hoje";
+  if (dias > 0) return `vence em ${plural(dias, "dia", "dias")}`;
+  return `venceu há ${plural(-dias, "dia", "dias")}`;
+}

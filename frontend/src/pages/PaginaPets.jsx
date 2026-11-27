@@ -1,10 +1,16 @@
 import { useCallback, useEffect, useState } from "react";
 import Aviso from "../components/Aviso.jsx";
+import ConfirmarExclusao from "../components/ConfirmarExclusao.jsx";
 import FiltrosPets from "../components/FiltrosPets.jsx";
 import FormularioPet from "../components/FormularioPet.jsx";
 import Modal from "../components/Modal.jsx";
 import PetCard from "../components/PetCard.jsx";
-import { atualizarPet, criarPet, listarPets } from "../services/pets.js";
+import {
+  atualizarPet,
+  criarPet,
+  excluirPet,
+  listarPets,
+} from "../services/pets.js";
 
 const ESPERA_DA_BUSCA_MS = 300;
 
@@ -15,6 +21,7 @@ export default function PaginaPets() {
   const [erro, setErro] = useState(null);
   const [formulario, setFormulario] = useState(null);
   const [sucesso, setSucesso] = useState(null);
+  const [petParaExcluir, setPetParaExcluir] = useState(null);
 
   useEffect(() => {
     let ativo = true;
@@ -43,6 +50,19 @@ export default function PaginaPets() {
     setFormulario({ pet });
   };
   const fecharFormulario = useCallback(() => setFormulario(null), []);
+
+  const pedirExclusao = (pet) => {
+    setSucesso(null);
+    setPetParaExcluir(pet);
+  };
+  const fecharExclusao = useCallback(() => setPetParaExcluir(null), []);
+
+  const excluir = async () => {
+    await excluirPet(petParaExcluir.id);
+    setSucesso(`${petParaExcluir.nome} foi excluído.`);
+    setPetParaExcluir(null);
+    recarregar();
+  };
 
   const salvar = async (dados) => {
     const pet = formulario.pet;
@@ -86,7 +106,11 @@ export default function PaginaPets() {
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {pets.map((pet) => (
           <li key={pet.id}>
-            <PetCard pet={pet} onEditar={abrirFormulario} />
+            <PetCard
+              pet={pet}
+              onEditar={abrirFormulario}
+              onExcluir={pedirExclusao}
+            />
           </li>
         ))}
       </ul>
@@ -117,6 +141,15 @@ export default function PaginaPets() {
             pet={formulario.pet}
             onSalvar={salvar}
             onCancelar={fecharFormulario}
+          />
+        </Modal>
+      )}
+      {petParaExcluir && (
+        <Modal titulo="Excluir pet" onFechar={fecharExclusao}>
+          <ConfirmarExclusao
+            mensagem={`Tem certeza de que deseja excluir ${petParaExcluir.nome}? Esta ação não pode ser desfeita.`}
+            onConfirmar={excluir}
+            onCancelar={fecharExclusao}
           />
         </Modal>
       )}
