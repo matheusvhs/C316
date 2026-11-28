@@ -1,0 +1,43 @@
+# Ambiente
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+*.egg-info/
+build/
+.coverage
+.coverage.*
+htmlcov/
+*.db
+
+# Node
+node_modules/
+dist/
+.vite/
+coverage/
+*.local
+npm-debug.log*
+
+# Playwright
+playwright-report/
+test-results/
+blob-report/
+playwright/.cache/
+
+# Logs e temporários
+*.log
+*.tmp
+*.swp
+
+# Sistema e editores
+.DS_Store
+.vscode/
+.idea/

@@ -1,0 +1,47 @@
+[project]
+name = "petcare-backend"
+version = "0.1.0"
+description = "API do PetCare"
+authors = [
+    {name = "Matheus Vieira",email = "matheusvhs@gmail.com"}
+]
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi (>=0.165.0,<0.166.0)",
+    "uvicorn (>=0.54.0,<0.55.0)",
+    "sqlalchemy (>=2.1.9,<3.0.0)",
+    "alembic (>=1.20.1,<2.0.0)",
+    "psycopg[binary] (>=3.3.9,<4.0.0)",
+    "pydantic-settings (>=2.16.3,<3.0.0)"
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+packages = [{ include = "backend", from = "src" }]
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.2.0,<10.0.0)",
+    "ruff (>=0.17.6,<0.18.0)",
+    "httpx2 (>=2.16.2,<3.0.0)"
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py314"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "UP", "SIM"]
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
